@@ -1,6 +1,9 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from src.org_reviewers import count_senior
 
-# helpers
+# Helper to create nodes
 def mk(name, level, reports=None):
     return {"name": name, "level": level, "reports": reports or []}
 
@@ -29,7 +32,7 @@ def test_none_root():
     assert count_senior(None, 1) == 0
 
 def test_missing_reports_key():
-    root = {"name":"A","level":4}   # no reports
+    root = {"name": "A", "level": 4}  # no reports
     assert count_senior(root, 4) == 1
 
 def test_min_level_high():
@@ -38,14 +41,16 @@ def test_min_level_high():
 
 # ---- Complex (3) ----
 def test_wide_tree():
-    root = mk("CEO", 6, [mk(f"E{i}", i%7) for i in range(50)])
-    assert count_senior(root, 4) == (1 + sum(1 for i in range(50) if i%7 >= 4))
+    root = mk("CEO", 6, [mk(f"E{i}", i % 7) for i in range(50)])
+    expected = 1 + sum(1 for i in range(50) if i % 7 >= 4)
+    assert count_senior(root, 4) == expected
 
 def test_deep_chain():
     node = mk("N0", 1)
     for i in range(1, 60):
-        node = mk(f"N{i}", (i%7), [node])
-    assert count_senior(node, 5) == sum(1 for i in range(1, 60) if (i%7) >= 5)
+        node = mk(f"N{i}", (i % 7), [node])
+    expected = sum(1 for i in range(1, 60) if (i % 7) >= 5)
+    assert count_senior(node, 5) == expected
 
 def test_mixed_large():
     root = mk("A", 3, [mk("B", 4, [mk("D", 2), mk("E", 6)]), mk("C", 1)])
